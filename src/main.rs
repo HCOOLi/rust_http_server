@@ -12,25 +12,23 @@ struct MyData {
     email: String,
 }
 
-
 #[tokio::main]
 async fn main() {
 
     let app = Router::new()
-        // `GET /` goes to `root`
-        .route("/", get(index_handler))
-        .route("/contact", get(contact_handler))
-        .route("/projects", get(projects_handler))
-        // .route("/email", post(email_handler))
-        .nest_service("/assets", ServeDir::new("assets"));
+        .nest_service("/", ServeDir::new("./"));
+        // .route("/qzchess", get(qzchess_handler));
+        // .nest_service("/qzchess/assets", ServeDir::new("qzchess/assets"))
+        // .nest_service("/qzchess/out", ServeDir::new("qzchess/out"))
+        // .route("/rougelike", get(rougelike_handler))
+        // .nest_service("/rougelike/assets", ServeDir::new("rougelike/assets"))
+        // .nest_service("/rougelike/out", ServeDir::new("rougelike/out"));
 
-
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn index_handler() -> Html<String> {
+async fn root_handler() -> Html<String> {
     let file_path = Path::new("index.html");
     let mut file = fs::File::open(file_path).await.unwrap();
     let mut contents = String::new();
@@ -38,26 +36,18 @@ async fn index_handler() -> Html<String> {
     Html(contents)
 }
 
-async fn contact_handler() -> Html<String> {
-    let file_path = Path::new("contact.html");
+async fn qzchess_handler() -> Html<String> {
+    let file_path = Path::new("qzchess/index.html");
     let mut file = fs::File::open(file_path).await.unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).await.unwrap();
     Html(contents)
 }
 
-async fn projects_handler() -> Html<String> {
-    let file_path = Path::new("projects.html");
+async fn rougelike_handler() -> Html<String> {
+    let file_path = Path::new("rougelike/index.html");
     let mut file = fs::File::open(file_path).await.unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).await.unwrap();
     Html(contents)
 }
-
-
-// async fn email_handler(headers: HeaderMap, form: Form<MyData>) -> Html<String> {
-//     println!("Headers: {:?}", headers);
-//     println!("Received message: {}", form.message);
-//     println!("Received email: {}", form.email);
-//     Html(String::from("Email received successfully"))
-// }
